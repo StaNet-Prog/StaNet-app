@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StaNet - Cloud Wi-Fi Billing SaaS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0B0E14; color: #E2E8F0; font-family: sans-serif; }
+    .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+  </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <header class="glass rounded-2xl p-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-cyan-400">StaNet Cloud</h1>
+        <p class="text-xs text-gray-400">Wi-Fi Billing System - Live Portal</p>
+      </div>
+      <span class="px-3 py-1 text-xs bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">● System Online</span>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="flex gap-4">
+      <button onclick="showTab('dashboard')" id="btn-dash" class="flex-1 py-3 glass rounded-xl font-semibold text-cyan-400 border-cyan-500/50">Merchant Dashboard</button>
+      <button onclick="showTab('portal')" id="btn-portal" class="flex-1 py-3 glass rounded-xl font-semibold text-gray-400">Captive Portal (Client View)</button>
+    </div>
+
+    <!-- Merchant Dashboard View -->
+    <main id="tab-dashboard" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass p-5 rounded-2xl">
+          <p class="text-xs text-gray-400">Mapato ya Leo</p>
+          <p class="text-2xl font-bold text-emerald-400">Tsh 51,500</p>
+        </div>
+        <div class="glass p-5 rounded-2xl">
+          <p class="text-xs text-gray-400">Wateja Mtandaoni</p>
+          <p class="text-2xl font-bold text-cyan-400">24 Active</p>
+        </div>
+        <div class="glass p-5 rounded-2xl">
+          <p class="text-xs text-gray-400">Access Points (APs)</p>
+          <p class="text-2xl font-bold text-purple-400">3 Online</p>
+        </div>
+      </div>
+
+      <!-- Voucher Generator Card -->
+      <div class="glass p-6 rounded-2xl space-y-4">
+        <h2 class="text-lg font-bold text-cyan-400">Tengeneza Vocha Mpya (QR Code Voucher)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs text-gray-400">Chagua Kifurushi</label>
+            <select id="v-pkg" class="w-full mt-1 p-3 rounded-xl bg-slate-900 border border-slate-700 text-white">
+              <option value="1 Hour - Tsh 500">Saa 1 - Tsh 500</option>
+              <option value="24 Hours - Tsh 1,000">Masaa 24 - Tsh 1,000</option>
+              <option value="7 Days - Tsh 5,000">Siku 7 - Tsh 5,000</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-gray-400">Idadi ya Vocha</label>
+            <input type="number" value="1" id="v-qty" class="w-full mt-1 p-3 rounded-xl bg-slate-900 border border-slate-700 text-white">
+          </div>
+        </div>
+        <button onclick="generateVoucher()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl">Tengeneza Vocha Sasa</button>
+        <div id="voucher-result" class="hidden mt-4 p-4 border border-cyan-500/30 rounded-xl bg-cyan-950/20 text-center space-y-2">
+          <p class="text-xs text-cyan-300">Vocha Imetengenezwa Vizuri!</p>
+          <div class="p-3 bg-white text-slate-900 rounded-lg inline-block font-mono font-bold text-lg" id="v-code">STN-8921-XYZ</div>
+          <p class="text-xs text-gray-400">Chapa au tumia QR Code kwa ajili ya Mteja</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Captive Portal View -->
+    <main id="tab-portal" class="space-y-6 hidden">
+      <div class="glass p-6 rounded-2xl max-w-md mx-auto text-center space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-cyan-400">KARIBU STANET WI-FI</h2>
+          <p class="text-xs text-gray-400 mt-1">Chagua kifurushi na ulipie kwa M-Pesa kupata Intaneti</p>
+        </div>
+
+        <div class="space-y-3">
+          <button onclick="setPlan(500)" class="w-full p-4 glass rounded-xl border border-cyan-500/30 flex justify-between items-center hover:border-cyan-400">
+            <span>Saa 1 cha Mtandao</span>
+            <span class="font-bold text-cyan-400">Tsh 500</span>
+          </button>
+          <button onclick="setPlan(1000)" class="w-full p-4 glass rounded-xl border border-cyan-500/30 flex justify-between items-center hover:border-cyan-400">
+            <span>Masaa 24 (Siku 1)</span>
+            <span class="font-bold text-cyan-400">Tsh 1,000</span>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-left">
+          <label class="text-xs text-gray-400">Namba yako ya M-Pesa (STK Push)</label>
+          <input type="text" id="phone" placeholder="07XXXXXXXX" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-white">
+          <button onclick="payMpesa()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl">Lipia kwa M-Pesa</button>
+        </div>
+        <p id="stk-status" class="text-xs text-emerald-400 hidden">✓ Ombi la malipo limetumwa kwenye simu yako! Weka PIN kujiunga.</p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function showTab(tab) {
+      document.getElementById('tab-dashboard').classList.add('hidden');
+      document.getElementById('tab-portal').classList.add('hidden');
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+      
+      if(tab === 'dashboard') {
+        document.getElementById('btn-dash').className = 'flex-1 py-3 glass rounded-xl font-semibold text-cyan-400 border-cyan-500/50';
+        document.getElementById('btn-portal').className = 'flex-1 py-3 glass rounded-xl font-semibold text-gray-400';
+      } else {
+        document.getElementById('btn-portal').className = 'flex-1 py-3 glass rounded-xl font-semibold text-cyan-400 border-cyan-500/50';
+        document.getElementById('btn-dash').className = 'flex-1 py-3 glass rounded-xl font-semibold text-gray-400';
+      }
+    }
+
+    function generateVoucher() {
+      const code = 'STN-' + Math.floor(1000 + Math.random() * 9000) + '-OK';
+      document.getElementById('v-code').innerText = code;
+      document.getElementById('voucher-result').classList.remove('hidden');
+    }
+
+    function setPlan(amt) {
+      alert('Umechagua kifurushi cha Tsh ' + amt);
+    }
+
+    function payMpesa() {
+      const phone = document.getElementById('phone').value;
+      if(!phone) { alert('Tafadhali weka namba ya simu'); return; }
+      document.getElementById('stk-status').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
 
